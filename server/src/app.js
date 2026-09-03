@@ -1,9 +1,10 @@
-const express = require("express");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-const helmet = require("helmet");
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import helmet from "helmet";
 
-const healthRoutes = require("./routes/health.routes");
+import healthRoutes from "./routes/health.routes.js";
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 
@@ -17,10 +18,11 @@ app.use(
 );
 
 app.use(express.json());
-
 app.use(cookieParser());
 
 app.use("/api/v1/health", healthRoutes);
+
+app.use("/api/v1/auth", authRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
@@ -35,13 +37,16 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error(err);
 
-  res.status(500).json({
+  const statusCode = err.statusCode || 500;
+
+  res.status(statusCode).json({
     success: false,
     error: {
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Something went wrong.",
+      code: err.code || "INTERNAL_SERVER_ERROR",
+      message: err.message || "Something went wrong.",
+      ...(err.details && { details: err.details }),
     },
   });
 });
 
-module.exports = app;
+export default app;
