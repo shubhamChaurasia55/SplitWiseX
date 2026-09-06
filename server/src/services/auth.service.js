@@ -5,6 +5,7 @@ import { findUserByEmail, createUser } from "../repositories/user.repository.js"
 import { createSession, deleteSession } from "../repositories/session.repository.js";
 import { generateSessionToken, hashSessionToken } from "../utils/auth.js";
 import { withTransaction } from "../utils/transaction.js";
+import pool from "../config/db.js";
 
 
 export async function registerUser({ name, email, password }) {
@@ -107,7 +108,7 @@ export async function loginUser({ email, password }) {
     Date.now() + 7 * 24 * 60 * 60 * 1000
   );
 
-  await createSession({
+  await createSession(pool, {
     userId: user.id,
     tokenHash,
     expiresAt,

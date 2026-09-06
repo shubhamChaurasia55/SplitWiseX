@@ -1,27 +1,31 @@
 import pool from "../config/db.js";
 
 export async function createSession(
-  client,
-  {
-    userId,
-    tokenHash,
-    expiresAt,
-  }
+    db,
+    {
+        userId,
+        tokenHash,
+        expiresAt,
+    }
 ) {
-  const result = await client.query(
-    `
-    INSERT INTO sessions (
-      user_id,
-      token_hash,
-      expires_at
-    )
-    VALUES ($1, $2, $3)
-    RETURNING id, user_id, expires_at, created_at
-    `,
-    [userId, tokenHash, expiresAt]
-  );
+    const result = await db.query(
+        `
+        INSERT INTO sessions (
+            user_id,
+            token_hash,
+            expires_at
+        )
+        VALUES ($1, $2, $3)
+        RETURNING
+            id,
+            user_id,
+            expires_at,
+            created_at
+        `,
+        [userId, tokenHash, expiresAt]
+    );
 
-  return result.rows[0];
+    return result.rows[0];
 }
 
 export async function findSessionByTokenHash(tokenHash) {

@@ -5,6 +5,7 @@ import helmet from "helmet";
 
 import healthRoutes from "./routes/health.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import groupRoutes from "./routes/group.routes.js";
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.use(cookieParser());
 app.use("/api/v1/health", healthRoutes);
 
 app.use("/api/v1/auth", authRoutes);
+
+app.use("/api/v1/groups", groupRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
