@@ -6,6 +6,8 @@ import {
     createExpense,
     getExpenses,
     getExpense,
+    updateExpense,
+    deleteExpense,
 } from "../controllers/expense.controller.js";
 
 const router = Router();
@@ -27,6 +29,18 @@ router.get(
     "/:groupId/expenses/:expenseId",
     requireAuth,
     getExpense
+);
+
+router.put(
+    "/:groupId/expenses/:expenseId",
+    requireAuth,
+    updateExpense
+);
+
+router.delete(
+    "/:groupId/expenses/:expenseId",
+    requireAuth,
+    deleteExpense
 );
 
 export default router;

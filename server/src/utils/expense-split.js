@@ -8,19 +8,7 @@ export function calculateEqualSplit(
         amountInPaise / participantCount
     );
 
-    const remainder =
-        amountInPaise % participantCount;
-
-    // return Array.from(
-    //     { length: participantCount },
-    //     (_, index) => {
-    //         const share =
-    //             baseShare +
-    //             (index < remainder ? 1 : 0);
-
-    //         return share / 100;
-    //     }
-    // );
+    const remainder = amountInPaise % participantCount;
 
     const result = []
 

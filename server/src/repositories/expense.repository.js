@@ -8,6 +8,7 @@ export async function createExpense(
         amount,
         paidBy,
         splitType,
+        createdBy,
     }
 ) {
     const result = await db.query(
@@ -17,9 +18,10 @@ export async function createExpense(
             description,
             amount,
             paid_by,
-            split_type
+            split_type,
+            created_by
         )
-        VALUES ($1, $2, $3, $4, $5)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING
             id,
             group_id,
@@ -27,6 +29,7 @@ export async function createExpense(
             amount,
             paid_by,
             split_type,
+            created_by,
             created_at,
             updated_at
         `,
@@ -36,6 +39,7 @@ export async function createExpense(
             amount,
             paidBy,
             splitType,
+            createdBy,
         ]
     );
 
@@ -90,6 +94,7 @@ export async function findExpensesByGroupId(groupId) {
             e.amount,
             e.paid_by,
             e.split_type,
+            e.created_by,
             e.created_at,
             e.updated_at,
 
@@ -124,6 +129,7 @@ export async function findExpenseById(
             e.amount,
             e.paid_by,
             e.split_type,
+            e.created_by,
             e.created_at,
             e.updated_at,
 
@@ -174,4 +180,126 @@ export async function findExpenseSplits(
     );
 
     return result.rows;
+}
+
+
+export async function findExpenseByIdForUpdate(
+    client,
+    expenseId,
+    groupId
+) {
+    const result = await client.query(
+        `
+        SELECT
+            id,
+            group_id,
+            description,
+            amount,
+            paid_by,
+            split_type,
+            created_by,
+            created_at,
+            updated_at
+        FROM expenses
+        WHERE id = $1
+          AND group_id = $2
+        FOR UPDATE
+        `,
+        [
+            expenseId,
+            groupId,
+        ]
+    );
+
+    return result.rows[0] || null;
+}
+
+export async function deleteExpenseSplits(
+    client,
+    expenseId
+) {
+    await client.query(
+        `
+        DELETE FROM expense_splits
+        WHERE expense_id = $1
+        `,
+        [expenseId]
+    );
+}
+
+export async function updateExpense(
+    client,
+    {
+        expenseId,
+        groupId,
+        description,
+        amount,
+        paidBy,
+        splitType,
+    }
+) {
+    const result = await client.query(
+        `
+        UPDATE expenses
+        SET
+            description = $1,
+            amount = $2,
+            paid_by = $3,
+            split_type = $4,
+            updated_at = NOW()
+        WHERE id = $5
+          AND group_id = $6
+        RETURNING
+            id,
+            group_id,
+            description,
+            amount,
+            paid_by,
+            split_type,
+            created_by,
+            created_at,
+            updated_at
+        `,
+        [
+            description,
+            amount,
+            paidBy,
+            splitType,
+            expenseId,
+            groupId,
+        ]
+    );
+
+    return result.rows[0] || null;
+}
+
+
+export async function deleteExpense(
+    client,
+    {
+        expenseId,
+        groupId,
+    }
+) {
+    const result = await client.query(
+        `
+        DELETE FROM expenses
+        WHERE id = $1
+          AND group_id = $2
+        RETURNING
+            id,
+            group_id,
+            description,
+            amount,
+            paid_by,
+            split_type,
+            created_by
+        `,
+        [
+            expenseId,
+            groupId,
+        ]
+    );
+
+    return result.rows[0] || null;
 }

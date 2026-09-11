@@ -80,6 +80,9 @@ const createExpenseSchema = z.discriminatedUnion(
     ]
 );
 
+const updateExpenseSchema = createExpenseSchema;
+
 export {
     createExpenseSchema,
+    updateExpenseSchema,
 };
