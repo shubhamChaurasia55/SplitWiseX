@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.routes.js";
 import groupRoutes from "./routes/group.routes.js";
 import expenseRoutes from "./routes/expense.routes.js";
 import balanceRoutes from "./routes/balance.routes.js";
+import settlementRoutes from "./routes/settlement.routes.js";
 
 const app = express();
 
@@ -32,6 +33,8 @@ app.use("/api/v1/groups", groupRoutes);
 app.use("/api/v1/groups", expenseRoutes);
 
 app.use("/api/v1/groups", balanceRoutes);
+
+app.use("/api/v1/groups", settlementRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
