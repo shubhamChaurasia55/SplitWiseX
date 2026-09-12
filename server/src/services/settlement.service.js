@@ -16,6 +16,10 @@ import {
     findGroupSettlementBalances,
 } from "../repositories/settlement.repository.js";
 
+import {
+    createNewNotification,
+} from "./notification.service.js";
+
 import { AppError } from "../utils/AppError.js";
 
 export async function createNewSettlement({
@@ -216,7 +220,15 @@ export async function createNewSettlement({
 
         await client.query("COMMIT");
 
+        await createNewNotification({
+            userId: paidTo,
+            type: "SETTLEMENT_RECORDED",
+            title: "Settlement received",
+            message: `You received ₹${amount} from another group member.`,
+        });
+
         return settlement;
+        
     } catch (error) {
         await client.query("ROLLBACK");
         throw error;

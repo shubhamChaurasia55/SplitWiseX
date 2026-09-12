@@ -9,6 +9,7 @@ import groupRoutes from "./routes/group.routes.js";
 import expenseRoutes from "./routes/expense.routes.js";
 import balanceRoutes from "./routes/balance.routes.js";
 import settlementRoutes from "./routes/settlement.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 
 const app = express();
 
@@ -35,6 +36,8 @@ app.use("/api/v1/groups", expenseRoutes);
 app.use("/api/v1/groups", balanceRoutes);
 
 app.use("/api/v1/groups", settlementRoutes);
+
+app.use("/api/v1/notifications", notificationRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

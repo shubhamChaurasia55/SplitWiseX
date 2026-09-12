@@ -7,6 +7,10 @@ import { addGroupMember, findGroupMember, findGroupMembers, removeGroupMember } 
 import { AppError } from "../utils/AppError.js";
 import pool from "../config/db.js";
 
+import {
+    createNewNotification,
+} from "./notification.service.js";
+
 
 export async function createNewGroup({ name, userId }) {
 
@@ -101,6 +105,13 @@ export async function addMemberToGroup({
             "User is already a member of this group."
         );
     }
+
+    await createNewNotification({
+        userId: user.id,
+        type: "GROUP_MEMBER_ADDED",
+        title: "Added to a group",
+        message: `You were added to ${group.name}.`,
+    });
 
     return await addGroupMember(pool, {
         groupId,

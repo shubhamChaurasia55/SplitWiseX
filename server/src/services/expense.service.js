@@ -20,6 +20,10 @@ import { AppError } from "../utils/AppError.js";
 
 import { calculateEqualSplit, validateExactSplit, calculatePercentageSplit } from "../utils/expense-split.js";
 
+import {
+    createNewNotification,
+} from "./notification.service.js";
+
 export async function createNewExpense({
     groupId,
     requesterId,
@@ -242,6 +246,20 @@ export async function createNewExpense({
 
         // 8. Commit transaction
         await client.query("COMMIT");
+
+        // Notification
+        for (const split of finalSplits) {
+            if (split.userId === requesterId) {
+                continue;
+            }
+
+            await createNewNotification({
+                userId: split.userId,
+                type: "EXPENSE_ADDED",
+                title: "New expense added",
+                message: `${description} of ₹${amount} was added to your group.`,
+            });
+        }
 
         // 9. Return result
         return {
