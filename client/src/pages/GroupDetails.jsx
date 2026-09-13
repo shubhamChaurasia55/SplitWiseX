@@ -177,49 +177,6 @@ function GroupDetails() {
 
             </div>
 
-            {/* Summary cards */}
-
-            {/* <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-
-                <div className="rounded-xl border border-gray-200 bg-white p-5">
-
-                    <p className="text-sm text-gray-500">
-                        Total Members
-                    </p>
-
-                    <p className="mt-2 text-3xl font-semibold text-gray-900">
-                        {members.length}
-                    </p>
-
-                </div>
-
-                <div className="rounded-xl border border-gray-200 bg-white p-5">
-
-                    <p className="text-sm text-gray-500">
-                        Your Role
-                    </p>
-
-                    <p className="mt-2 text-xl font-semibold text-gray-900">
-                        {isOwner ? "Owner" : "Member"}
-                    </p>
-
-                </div>
-
-                <div className="rounded-xl border border-gray-200 bg-white p-5">
-
-                    <p className="text-sm text-gray-500">
-                        Group Created
-                    </p>
-
-                    <p className="mt-2 text-xl font-semibold text-gray-900">
-                        {new Date(
-                            group.created_at
-                        ).toLocaleDateString()}
-                    </p>
-
-                </div>
-
-            </div> */}
 
             {/* Tabs */}
 

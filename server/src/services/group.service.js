@@ -4,6 +4,7 @@ import { createGroup, findGroupByIdForUser, findGroupsByUserId, } from "../repos
 import { findUserByEmail } from "../repositories/user.repository.js";
 
 import { addGroupMember, findGroupMember, findGroupMembers, removeGroupMember } from "../repositories/group-member.repository.js";
+import { getGroupBalances } from "./balance.service.js";
 import { AppError } from "../utils/AppError.js";
 import pool from "../config/db.js";
 
@@ -206,6 +207,41 @@ export async function removeMemberFromGroup({
             400,
             "OWNER_CANNOT_LEAVE",
             "The group owner cannot leave the group."
+        );
+    }
+
+    // Check target member's current balance.
+    const balances = await getGroupBalances({
+        groupId,
+        requesterId,
+    });
+
+    const targetBalance = balances.find(
+        (balance) => balance.userId === targetUserId
+    );
+
+    if (!targetBalance) {
+        throw new AppError(
+            404,
+            "MEMBER_BALANCE_NOT_FOUND",
+            "Could not determine this member's balance."
+        );
+    }
+
+    // Member can be removed only when balance is exactly zero.
+    if (targetBalance.netBalancePaise !== 0) {
+        if (targetBalance.netBalancePaise < 0) {
+            throw new AppError(
+                400,
+                "MEMBER_HAS_OUTSTANDING_DEBT",
+                `${targetBalance.name} cannot be removed because they owe money.`
+            );
+        }
+
+        throw new AppError(
+            400,
+            "MEMBER_HAS_OUTSTANDING_CREDIT",
+            `${targetBalance.name} cannot be removed because they are owed money.`
         );
     }
 

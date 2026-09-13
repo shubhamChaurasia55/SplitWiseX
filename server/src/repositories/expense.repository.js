@@ -305,37 +305,79 @@ export async function deleteExpense(
 }
 
 export async function findGroupExpenseBalances(groupId) {
-  const result = await pool.query(
-    `
-    SELECT
-      gm.user_id,
-      u.name,
-      u.email,
-      COALESCE(paid.total_paid_paise, 0) AS total_paid_paise,
-      COALESCE(owed.total_owed_paise, 0) AS total_owed_paise
-    FROM group_members gm
-    JOIN users u ON u.id = gm.user_id
+    const result = await pool.query(
+        `
+        WITH participants AS (
+            SELECT user_id
+            FROM group_members
+            WHERE group_id = $1
 
-    LEFT JOIN (
-      SELECT paid_by AS user_id, ROUND(SUM(amount) * 100)::BIGINT AS total_paid_paise
-      FROM expenses
-      WHERE group_id = $1
-      GROUP BY paid_by
-    ) paid ON paid.user_id = gm.user_id
+            UNION
 
-    LEFT JOIN (
-      SELECT es.user_id, ROUND(SUM(es.amount) * 100)::BIGINT AS total_owed_paise
-      FROM expense_splits es
-      JOIN expenses e ON e.id = es.expense_id
-      WHERE e.group_id = $1
-      GROUP BY es.user_id
-    ) owed ON owed.user_id = gm.user_id
+            SELECT paid_by
+            FROM expenses
+            WHERE group_id = $1
 
-    WHERE gm.group_id = $1
-    ORDER BY u.name
-    `,
-    [groupId]
-  );
+            UNION
 
-  return result.rows;
+            SELECT es.user_id
+            FROM expense_splits es
+            JOIN expenses e
+                ON e.id = es.expense_id
+            WHERE e.group_id = $1
+        )
+
+        SELECT
+            p.user_id,
+            u.name,
+            u.email,
+
+            COALESCE(
+                paid.total_paid_paise,
+                0
+            ) AS total_paid_paise,
+
+            COALESCE(
+                owed.total_owed_paise,
+                0
+            ) AS total_owed_paise
+
+        FROM participants p
+
+        JOIN users u
+            ON u.id = p.user_id
+
+        LEFT JOIN (
+            SELECT
+                paid_by AS user_id,
+                ROUND(SUM(amount) * 100)::BIGINT
+                    AS total_paid_paise
+            FROM expenses
+            WHERE group_id = $1
+            GROUP BY paid_by
+        ) paid
+            ON paid.user_id = p.user_id
+
+        LEFT JOIN (
+            SELECT
+                es.user_id,
+                ROUND(SUM(es.amount) * 100)::BIGINT
+                    AS total_owed_paise
+            FROM expense_splits es
+
+            JOIN expenses e
+                ON e.id = es.expense_id
+
+            WHERE e.group_id = $1
+
+            GROUP BY es.user_id
+        ) owed
+            ON owed.user_id = p.user_id
+
+        ORDER BY u.name
+        `,
+        [groupId]
+    );
+
+    return result.rows;
 }

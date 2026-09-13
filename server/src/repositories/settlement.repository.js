@@ -71,32 +71,67 @@ export async function findSettlementsByGroupId(
 
 
 export async function findGroupSettlementBalances(groupId) {
-  const result = await pool.query(
-    `
-    SELECT
-      gm.user_id,
-      COALESCE(paid.total_paid_paise, 0) AS total_settlement_paid_paise,
-      COALESCE(received.total_received_paise, 0) AS total_settlement_received_paise
-    FROM group_members gm
+    const result = await pool.query(
+        `
+        WITH participants AS (
+            SELECT user_id
+            FROM group_members
+            WHERE group_id = $1
 
-    LEFT JOIN (
-      SELECT paid_by AS user_id, ROUND(SUM(amount) * 100)::BIGINT AS total_paid_paise
-      FROM settlements
-      WHERE group_id = $1
-      GROUP BY paid_by
-    ) paid ON paid.user_id = gm.user_id
+            UNION
 
-    LEFT JOIN (
-      SELECT paid_to AS user_id, ROUND(SUM(amount) * 100)::BIGINT AS total_received_paise
-      FROM settlements
-      WHERE group_id = $1
-      GROUP BY paid_to
-    ) received ON received.user_id = gm.user_id
+            SELECT paid_by
+            FROM settlements
+            WHERE group_id = $1
 
-    WHERE gm.group_id = $1
-    `,
-    [groupId]
-  );
+            UNION
 
-  return result.rows;
+            SELECT paid_to
+            FROM settlements
+            WHERE group_id = $1
+        )
+
+        SELECT
+            p.user_id,
+
+            COALESCE(
+                paid.total_paid_paise,
+                0
+            ) AS total_settlement_paid_paise,
+
+            COALESCE(
+                received.total_received_paise,
+                0
+            ) AS total_settlement_received_paise
+
+        FROM participants p
+
+        LEFT JOIN (
+            SELECT
+                paid_by AS user_id,
+                ROUND(SUM(amount) * 100)::BIGINT
+                    AS total_paid_paise
+            FROM settlements
+            WHERE group_id = $1
+            GROUP BY paid_by
+        ) paid
+            ON paid.user_id = p.user_id
+
+        LEFT JOIN (
+            SELECT
+                paid_to AS user_id,
+                ROUND(SUM(amount) * 100)::BIGINT
+                    AS total_received_paise
+            FROM settlements
+            WHERE group_id = $1
+            GROUP BY paid_to
+        ) received
+            ON received.user_id = p.user_id
+
+        ORDER BY p.user_id
+        `,
+        [groupId]
+    );
+
+    return result.rows;
 }
