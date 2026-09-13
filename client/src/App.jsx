@@ -8,10 +8,8 @@ import AppLayout from "./layouts/AppLayout";
 import Groups from "./pages/Groups";
 import GroupDetails from "./pages/GroupDetails";
 import ExpenseDetails from "./pages/ExpenseDetails";
+import Notifications from "./pages/Notifications";
 
-function Notifications() {
-  return <h1 className="text-2xl font-semibold">Notifications</h1>;
-}
 
 function App() {
   return (
