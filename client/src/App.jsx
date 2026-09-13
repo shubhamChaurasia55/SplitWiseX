@@ -1,24 +1,53 @@
-import { useEffect, useState } from "react";
-import { getHealth } from "./api/health.api";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AppLayout from "./layouts/AppLayout";
+import Groups from "./pages/Groups";
+import GroupDetails from "./pages/GroupDetails";
+import ExpenseDetails from "./pages/ExpenseDetails";
+
+function Notifications() {
+  return <h1 className="text-2xl font-semibold">Notifications</h1>;
+}
 
 function App() {
-  const [status, setStatus] = useState("Checking...");
-
-  useEffect(() => {
-    getHealth()
-      .then((data) => {
-        setStatus(data.message);
-      })
-      .catch(() => {
-        setStatus("Backend unavailable");
-      });
-  }, []);
-
   return (
-    <div>
-      <h1>Expense Splitter</h1>
-      <p>{status}</p>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        {/* Public */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Protected */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+
+          <Route path="/groups" element={<Groups />} />
+
+          <Route
+            path="/groups/:groupId"
+            element={<GroupDetails />}
+          />
+
+          <Route
+            path="/groups/:groupId/expenses/:expenseId"
+            element={<ExpenseDetails />}
+          />
+
+          <Route path="/notifications" element={<Notifications />} />
+        </Route>
+
+        {/* Unknown route */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
