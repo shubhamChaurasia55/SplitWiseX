@@ -1,6 +1,6 @@
 import { useState } from "react";
 import useAuthStore from "../stores/auth.store";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Login() {
   const login = useAuthStore((state) => state.login);
@@ -101,14 +101,17 @@ function Login() {
             </button>
           </form>
 
-          <div className="mt-6 border-t border-gray-100 pt-5 text-center">
-            <p className="text-sm text-gray-500">
-              Don't have an account?{" "}
-              <button type="button" className="font-medium text-gray-900 hover:underline">
-                Create one
-              </button>
-            </p>
-          </div>
+          <div className="mt-8 border-t border-gray-200 pt-6 text-center">
+                <p className="text-sm text-gray-500">
+                    Don't have an account?{" "}
+                    <Link
+                        to="/register"
+                        className="font-semibold text-gray-900 hover:underline"
+                    >
+                        Create one
+                    </Link>
+                </p>
+            </div>
         </div>
       </div>
     </div>

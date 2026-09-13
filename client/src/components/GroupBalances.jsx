@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { getGroupBalances, getGroupDebts } from "../api/groups.api";
 
-function GroupBalances({ groupId }) {
+function GroupBalances({ groupId, refreshKey, }) {
   const [balances, setBalances] = useState([]);
   const [debts, setDebts] = useState([]);
 
@@ -33,7 +33,7 @@ function GroupBalances({ groupId }) {
     }
 
     loadBalances();
-  }, [groupId]);
+  }, [groupId, refreshKey]);
 
   if (isLoading) {
     return (

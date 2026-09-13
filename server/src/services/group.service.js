@@ -1,6 +1,6 @@
 import { withTransaction } from "../utils/transaction.js";
 
-import { createGroup, findGroupByIdForUser, findGroupsByUserId } from "../repositories/group.repository.js";
+import { createGroup, findGroupByIdForUser, findGroupsByUserId, } from "../repositories/group.repository.js";
 import { findUserByEmail } from "../repositories/user.repository.js";
 
 import { addGroupMember, findGroupMember, findGroupMembers, removeGroupMember } from "../repositories/group-member.repository.js";
@@ -80,6 +80,19 @@ export async function addMemberToGroup({
             403,
             "INSUFFICIENT_GROUP_ROLE",
             "Only the group owner can add members."
+        );
+    }
+
+    const group = await findGroupByIdForUser(
+        groupId,
+        requesterId
+    );
+
+    if (!group) {
+        throw new AppError(
+            404,
+            "GROUP_NOT_FOUND",
+            "Group not found."
         );
     }
 

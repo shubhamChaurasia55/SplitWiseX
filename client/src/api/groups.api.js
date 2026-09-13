@@ -38,3 +38,20 @@ export async function getGroupDebts(groupId) {
 
     return response.data;
 }
+
+export async function addGroupMember(groupId, email) {
+    const response = await apiClient.post(
+        `/groups/${groupId}/members`,
+        { email }
+    );
+
+    return response.data;
+}
+
+export async function removeGroupMember(groupId, userId) {
+    const response = await apiClient.delete(
+        `/groups/${groupId}/members/${userId}`
+    );
+
+    return response.data;
+}
